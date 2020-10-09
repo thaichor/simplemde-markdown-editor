@@ -1052,18 +1052,44 @@ function extend(target) {
 
 /* The right word count in respect for CJK. */
 function wordCount(data) {
-	var pattern = /[a-zA-Z0-9_\u0392-\u03c9\u0410-\u04F9]+|[\u4E00-\u9FFF\u3400-\u4dbf\uf900-\ufaff\u3040-\u309f\uac00-\ud7af]+/g;
-	var m = data.match(pattern);
-	var count = 0;
-	if(m === null) return count;
-	for(var i = 0; i < m.length; i++) {
-		if(m[i].charCodeAt(0) >= 0x4E00) {
-			count += m[i].length;
-		} else {
-			count += 1;
-		}
+	// * Old Logic
+	// var pattern = /[a-zA-Z0-9_\u0392-\u03c9\u0410-\u04F9]+|[\u4E00-\u9FFF\u3400-\u4dbf\uf900-\ufaff\u3040-\u309f\uac00-\ud7af]+/g;
+	// var m = data.match(pattern);
+	// var count = 0;
+	// if(m === null) return count;
+	// for(var i = 0; i < m.length; i++) {
+	// 	if(m[i].charCodeAt(0) >= 0x4E00) {
+	// 		count += m[i].length;
+	// 	} else {
+	// 		count += 1;
+	// 	}
+	// }
+	// return count;
+
+	// * New Logic
+	var pattern = isRegExpUnicodePropertySupported() ?
+		new RegExp("[\\p{L}\\p{N}\\p{M}\\p{Pd}\\p{Pc}]+", "gu") :
+		new RegExp("/[_\-a-zA-Z0-9À-ž]+/", "gu");
+
+	var detectedWords = data.match(pattern) || [];
+
+	return detectedWords.length;
+}
+
+function isRegExpUnicodePropertySupported() {
+	var isSupported = false;
+
+	// Feature detection for Unicode properties. Added in ES2018. Currently Firefox does not support it.
+	// See https://github.com/ckeditor/ckeditor5-mention/issues/44#issuecomment-487002174.
+
+	try {
+		// Usage of regular expression literal cause error during build (ckeditor/ckeditor5-dev#534).
+		isSupported = "ć".search(new RegExp("[\\p{L}]", "u")) === 0;
+	} catch (error) {
+		// Firefox throws a SyntaxError when the group is unsupported.
 	}
-	return count;
+
+	return isSupported;
 }
 
 var toolbarBuiltInButtons = {
@@ -1532,7 +1558,7 @@ function isLocalStorageAvailable() {
 		try {
 			localStorage.setItem("smde_localStorage", 1);
 			localStorage.removeItem("smde_localStorage");
-		} catch(e) {
+		} catch (e) {
 			return false;
 		}
 	} else {
