@@ -1,23 +1,17 @@
 {
   "rules": {
-    "indent": [
-      2,
-      "tab"
-    ],
+    "indent": [2, "tab"],
     "strict": 0,
     "no-console": 0,
-    "quotes": [
-      2,
-      "double"
-    ],
-    "semi": [
-      2,
-      "always"
-    ]
+    "quotes": [2, "double"],
+    "semi": [2, "always"],
+    "no-useless-escape": [0],
+    "no-redeclare": [0],
+    "no-prototype-builtins": [0]
   },
   "env": {
     "browser": true,
-    "node":true
+    "node": true
   },
   "extends": "eslint:recommended"
 }
